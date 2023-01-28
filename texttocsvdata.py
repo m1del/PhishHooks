@@ -21,20 +21,28 @@ def JSON_to_intentDict(response) -> dict:
     return intentDict
 
 
+def JSON_to_emotionDict(response) -> dict:
+    emotionDict = {"Fear": [], "Bored": [], "Excited": [], "Angry": [], "Happy": [], "Sad": []}
+    for dicts in response["emotion"]:
+        for key, value in dicts.items():
+            emotionDict[key].append(value)
+
+    return emotionDict
+
+
 def main():
     # API key
     paralleldots.set_api_key("2BD2GHXk4JCZdQHphGuUYZEXXkhoxFRqjbqbRK5M4YA")
 
     # Example text
     text = [
-        "Dear XXXX, Our security system has detected some irregular activity connected to your account.",
-        "you will be unable to send and recieve emails until this issue has been resolved CLICK HERE TO VALIDATE NOW."
-    ]
+        "I like eating bacon.",
+        "Why is John taking so long?"]
 
-    # returns a JSON object for intent in the text
-    response = paralleldots.batch_intent(text)
+    # returns a JSON object for emotion in the text
+    response = paralleldots.batch_emotion(text)
 
-    print(JSON_to_intentDict(response))
+    print(JSON_to_emotionDict(response))
 
 
 if __name__ == "__main__":
