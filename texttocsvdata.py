@@ -1,4 +1,5 @@
 import paralleldots
+import language_tool_python
 
 
 def JSON_to_keywordDict(response) -> dict:
@@ -30,19 +31,46 @@ def JSON_to_emotionDict(response) -> dict:
     return emotionDict
 
 
+def writeToTXT(text, grammarErrors, keyWordDict, intentDict, emotionDict):
+    with open("data.txt", "w") as f:
+        f.write(f"Text: {text}\n")
+        f.write(f"Grammar Errors: {grammarErrors}\n")
+        f.write("Keywords: ")
+        for key in keyWordDict:
+            f.write(key + " ")
+        f.write("\n")
+        f.write("Intents:\n")
+        for key, value in intentDict.items():
+            f.write(f"{key}: {value}\n")
+        f.write("Emotions:\n")
+        for key, value in emotionDict.items():
+            f.write(f"{key}: {value}\n")
+
+
+def check_grammar(text) -> int:
+    tool = language_tool_python.LanguageTool('en-US')
+    return len(tool.check(text))
+
 def main():
     # API key
     paralleldots.set_api_key("2BD2GHXk4JCZdQHphGuUYZEXXkhoxFRqjbqbRK5M4YA")
 
     # Example text
     text = [
-        "I like eating bacon.",
-        "Why is John taking so long?"]
+        "Dear recipient, We have received your cancellation request and you are no longer subscribed to "
+        "security.berkeley.edu. If you did not request cancellation, kindly click below to reactivate your account."]
 
-    # returns a JSON object for emotion in the text
+    errors = check_grammar(" ".join(text))
+    response = paralleldots.batch_keywords(text)
+    keywordDict = JSON_to_keywordDict(response)
+
+    response = paralleldots.batch_intent(text)
+    intentDict = JSON_to_intentDict(response)
+
     response = paralleldots.batch_emotion(text)
+    emotionDict = JSON_to_emotionDict(response)
 
-    print(JSON_to_emotionDict(response))
+    writeToTXT(" ".join(text), errors, keywordDict, intentDict, emotionDict)
 
 
 if __name__ == "__main__":
