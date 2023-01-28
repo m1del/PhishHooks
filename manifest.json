@@ -1,0 +1,18 @@
+{
+    "name": "PhishHooks",
+    "version": "0.1.0",
+    "desciption": "Protect yourself from phishing emails!",
+    "permissions": ["tabs"],
+    "background": {
+
+    },
+    "content_scripts": [
+        {
+
+        }
+    ],
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "manifest_version": 3
+}
