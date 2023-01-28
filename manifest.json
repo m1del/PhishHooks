@@ -2,17 +2,20 @@
     "name": "PhishHooks",
     "version": "0.1.0",
     "desciption": "Protect yourself from phishing emails!",
-    "permissions": ["tabs"],
+    "permissions": ["tabs", "activeTab"],
     "background": {
-
+        "scripts": ["background.js"],
+        "persistent": false
     },
     "content_scripts": [
         {
-
+            "matches": ["<all_urls>"],
+            "js": ["content-script.js"]
         }
     ],
     "action": {
-        "default_popup": "popup.html"
+        "default_popup": "popup.html",
+        "default_title": "PhishHooks"
     },
     "manifest_version": 3
 }
