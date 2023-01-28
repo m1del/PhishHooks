@@ -1,4 +1,5 @@
 import paralleldots
+import language_tool_python
 
 
 def JSON_to_keywordDict(response) -> dict:
@@ -20,6 +21,10 @@ def JSON_to_intentDict(response) -> dict:
 
     return intentDict
 
+def Check_Grammar(text) -> int:
+    tool = language_tool_python.LanguageTool('en-US')
+    return len(tool.check(text))
+
 
 def main():
     # API key
@@ -30,6 +35,13 @@ def main():
         "Dear XXXX, Our security system has detected some irregular activity connected to your account.",
         "you will be unable to send and recieve emails until this issue has been resolved CLICK HERE TO VALIDATE NOW."
     ]
+    
+
+    # Test for Check_Grammar
+    sample = ["A sentence with a error in the Hitchhiker's Guide to the Galaxy. A sentence with an error i the Hitchhiker's Guide to the Galaxy. A sentence with an errr in the Hitchhiker's Guide to the Galaxy. A sentence with an error in the Hitchhiker's Guide to the Galaxy. A sentence with an eror in the Hitchhiker's Guide to the Galaxy."]
+    print(Check_Grammar(sample))
+
+
 
     # returns a JSON object for intent in the text
     response = paralleldots.batch_intent(text)
