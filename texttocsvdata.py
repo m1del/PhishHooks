@@ -26,6 +26,15 @@ def Check_Grammar(text) -> int:
     return len(tool.check(text))
 
 
+def JSON_to_emotionDict(response) -> dict:
+    emotionDict = {"Fear": [], "Bored": [], "Excited": [], "Angry": [], "Happy": [], "Sad": []}
+    for dicts in response["emotion"]:
+        for key, value in dicts.items():
+            emotionDict[key].append(value)
+
+    return emotionDict
+
+
 def main():
     # API key
     paralleldots.set_api_key("2BD2GHXk4JCZdQHphGuUYZEXXkhoxFRqjbqbRK5M4YA")
@@ -43,10 +52,10 @@ def main():
 
 
 
-    # returns a JSON object for intent in the text
-    response = paralleldots.batch_intent(text)
+    # returns a JSON object for emotion in the text
+    response = paralleldots.batch_emotion(text)
 
-    print(JSON_to_intentDict(response))
+    print(JSON_to_emotionDict(response))
 
 
 if __name__ == "__main__":
