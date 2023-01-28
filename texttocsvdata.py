@@ -47,7 +47,9 @@ def main():
     
 
     # Test for Check_Grammar
-    sample = ["A sentence with a error in the Hitchhiker's Guide to the Galaxy. A sentence with an error i the Hitchhiker's Guide to the Galaxy. A sentence with an errr in the Hitchhiker's Guide to the Galaxy. A sentence with an error in the Hitchhiker's Guide to the Galaxy. A sentence with an eror in the Hitchhiker's Guide to the Galaxy."]
+    sample = "A sentence with a error in the Hitchhiker's Guide to the Galaxy. A sentence with an error i the Hhiker's Guide to the Galaxy. A sentence with an errr in the Hitchhiker's Guide to the Galaxy. A sentence with an error in the Hitchhiker's Guide to the Galaxy."
+    
+    # Result should be 3 mistakes
     print(Check_Grammar(sample))
 
 
