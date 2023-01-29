@@ -3,6 +3,7 @@ import csv
 import paralleldots
 import time
 import language_tool_python
+import pandas as pd
 
 
 SPAMWORDS_FILENAME = "spamwords.csv"
@@ -132,41 +133,65 @@ def generate_decision_coefficient(keyword_coefficient, errors, intent_weight):
     return decision_coefficient + change
 
 
+def DisplayGraph(decision_coefficient):
+    if decision_coefficient > 100:
+        decision_coefficient = 100
+    if decision_coefficient < 0:
+        decision_coefficient = 0
+
+    chart_data = pd.DataFrame([decision_coefficient],
+    columns=["Phishing Likliehood"])
+    st.bar_chart(chart_data)
+
+def RankDecision(decision_coefficient):
+    if decision_coefficient > 100:
+        decision_coefficient = 100
+    if decision_coefficient < 0:
+        decision_coefficient = 0
+
+    if decision_coefficient >=0 and decision_coefficient < 20:
+        st.write("No Warnings")
+    elif decision_coefficient >= 20 and decision_coefficient < 40:
+        st.write("Safe")
+    elif decision_coefficient >= 40 and decision_coefficient < 60:
+        st.write("Caution")
+    elif decision_coefficient >=60 and decision_coefficient < 80:
+        st.write("Danger")
+    else:
+        st.write("Most likely a phishing attempt")
+
+
+
 def main():
     # API key
     paralleldots.set_api_key("2BD2GHXk4JCZdQHphGuUYZEXXkhoxFRqjbqbRK5M4YA")
 
     st.title("PhishHooks!")
     st.write("The bigger the phish, the bigger the hook!")
-    text = st.text_input('Email Body:')
 
     spam_words_dict = import_spam_keywords()
 
-    t0 = time.time()
-    errors = check_grammar(text)
-    t1 = time.time()
-    print(f"Checked grammar, took {t1 - t0:.2f} seconds")
+    text = st.text_input('Email Body:')
+    if not text:
+        st.warning('Please input text')
+        st.stop()
+    st.success('Thank you for inputting text')
 
-    response = paralleldots.keywords(text)
-    keywordDict = JSON_to_keywordDict(response)
-    t2 = time.time()
-    print(f"Retrieved keywords, took {t2 - t1:.2f} seconds")
+    with st.spinner('Analyzing...'):
+        errors = check_grammar(text)
+        response = paralleldots.keywords(text)
+        keyWordDict = JSON_to_keywordDict(response)
 
-    response = paralleldots.intent(text)
-    intentDict = JSON_to_intentDict(response)
-    t3 = time.time()
-    print(f"Retrieved intents, took {t3 - t2:.2f} seconds")
+        response = paralleldots.intent(text)
+        intentDict = JSON_to_intentDict(response)
 
-    keywordCoefficient = determine_keyword_coefficient(
-        text, spam_words_dict, keywordDict)
-    intentWeights = intent_weights(intentDict)
+        keyWordCoefficient = determine_keyword_coefficient(text, spam_words_dict, keyWordDict)
+        intentWeights = intent_weights(intentDict)
 
-    print(f"Keyword Coefficient: {keywordCoefficient}")
-    print(f"Grammatical Errors: {errors}")
-    print(f"Intent Weights: {intentWeights}")
-
-    st.write(
-        f"Decision Coefficient: {generate_decision_coefficient(keywordCoefficient, errors, intentWeights)}")
+        decicision = generate_decision_coefficient(keyWordCoefficient, errors, intentWeights)
+        RankDecision(decicision)
+        DisplayGraph(decicision)
+    st.success('Done!')
 
 
 if __name__ == "__main__":
