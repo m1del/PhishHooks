@@ -3,7 +3,7 @@ import csv
 import paralleldots
 import time
 import language_tool_python
-
+import plotly.graph_objects as go
 
 SPAMWORDS_FILENAME = "spamwords.csv"
 AVG_SPAM_COEFF = 0.082
@@ -177,6 +177,8 @@ def main():
         st.stop()
 
     decisionCoefficient = analyze(text)
+
+    st.subheader(decisionCoefficient)
 
 
 if __name__ == "__main__":
