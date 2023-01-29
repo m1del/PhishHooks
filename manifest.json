@@ -10,7 +10,7 @@
     "oauth2": {
         "client_id": "507718843405-bckmip8lqptbpvh2go98mek3adjtjjaq.apps.googleusercontent.com",
         "scopes": [
-            "https://www.googleapis.com/auth/gmail.modify"
+            "https://www.googleapis.com/auth/gmail.readonly"
         ]
     },
     "manifest_version": 3
