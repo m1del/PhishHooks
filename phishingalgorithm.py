@@ -117,7 +117,7 @@ def main():
     spam_words_dict = import_spam_keywords()
 
     t0 = time.time()
-    errors = check_grammar(" ".join(text))
+    errors = check_grammar(text)
     t1 = time.time()
     print(f"Checked grammar, took {t1 - t0:.2f} seconds")
 
