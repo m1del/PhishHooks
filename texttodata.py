@@ -1,6 +1,6 @@
 import paralleldots
 import language_tool_python
-
+import time
 
 def JSON_to_keywordDict(response) -> dict:
     keywordDict = {}
@@ -32,7 +32,7 @@ def JSON_to_emotionDict(response) -> dict:
 
 
 def writeToTXT(text, grammarErrors, keyWordDict, intentDict, emotionDict):
-    with open("data.txt", "w") as f:
+    with open("data.txt", "a") as f:
         f.write(f"Text: {text}\n")
         f.write(f"Grammar Errors: {grammarErrors}\n")
         f.write("Keywords: ")
@@ -57,20 +57,34 @@ def main():
 
     # Example text
     text = [
-        "Dear recipient, We have received your cancellation request and you are no longer subscribed to "
-        "security.berkeley.edu. If you did not request cancellation, kindly click below to reactivate your account."]
+        "Hello, Are you currently in the US? Here is an opportunity for you to work part time after classes and earn "
+        "$500 weekly. The job is completely done online and can be completed anytime in the evening/night at home and "
+        "won't take much of your time daily, you don't have to be online all day and don't need any professional "
+        "skill to do the job, all you need is just come online before going to bed to forward all order of the day "
+        "made by agents to the supplier and you are done for the day."]
 
+    t0 = time.time()
     errors = check_grammar(" ".join(text))
+    t1 = time.time()
+    print(f"Checked grammar, took {t1-t0:.2f} seconds")
+
     response = paralleldots.batch_keywords(text)
     keywordDict = JSON_to_keywordDict(response)
+    t2 = time.time()
+    print(f"Retrieved keywords, took {t2-t1:.2f} seconds")
 
     response = paralleldots.batch_intent(text)
     intentDict = JSON_to_intentDict(response)
+    t3 = time.time()
+    print(f"Retrieved intents, took {t3-t2:.2f} seconds")
 
     response = paralleldots.batch_emotion(text)
     emotionDict = JSON_to_emotionDict(response)
+    t4 = time.time()
+    print(f"Retrieved emotions, took {t4-t3:.2f} seconds")
 
     writeToTXT(" ".join(text), errors, keywordDict, intentDict, emotionDict)
+    print(f"Total time: {(time.time() - t0):.2f} seconds")
 
 
 if __name__ == "__main__":
