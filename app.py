@@ -220,29 +220,6 @@ def main():
         RankDecision(decicision)
         DisplayGraph(decicision)
     st.success('Done!')
-    print(f"Keyword Coefficient: {keywordCoefficient}")
-    print(f"Grammatical Errors: {errors}")
-    print(f"Intent Weights: {intentWeights}")
-
-    print(
-        f"Decision Coefficient: {generate_decision_coefficient(keywordCoefficient, errors, intentWeights)}")
-
-    return generate_decision_coefficient(keywordCoefficient, errors, intentWeights)
-
-
-def main():
-    # API key
-
-    st.title("PhishHooks!")
-    st.header("The bigger the phish, the bigger the hook!")
-    text = st.text_input('Email Body:')
-
-    if not text:
-        st.stop()
-
-    decisionCoefficient = analyze(text)
-
-    st.subheader(decisionCoefficient)
 
 
 if __name__ == "__main__":
