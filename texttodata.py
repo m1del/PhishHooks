@@ -39,6 +39,48 @@ def writeToTXT(text, grammarErrors, keyWordDict, intentDict, weights):
             f.write(f"{key}: {value}\n")
         f.write(f"Number of Intents Weighted: {weights}\n")
 
+def import_spam_keywords() -> dict:
+    spam_words_dict = {}
+    with open(SPAMWORDS_FILENAME, "r") as csvfile:
+        reader = csv.reader(csvfile)
+
+        for row in reader:
+            if row:
+                spam_words_dict[row[0]] = row[1]
+
+    return spam_words_dict
+
+
+def determine_keyword_coefficient(text, spam_words_dict, keywordDict) -> float:
+    # Split string to a list of words
+    words = text.split()
+    total = 0.0
+
+    # Find the max confidence score of the keywords
+    maxKeyWordConfidence = max(keywordDict.values())
+
+    for word in words:
+        lower_word = word.lower()
+        # If the word is a delineated spam word
+        if lower_word in spam_words_dict:
+            keywordDictConfidence = 0
+            spam_coefficient = float(spam_words_dict[lower_word])
+            # Check each keyword in the keyword dict
+            for key in keywordDict:
+                # If the spam word is a substring of the keyword (which may be a phrase)
+                if lower_word in key.lower():
+                    # Maintain the largest confidence score from the keywords the spam word may be a substring of
+                    keywordDictConfidence = max(keywordDictConfidence, keywordDict[key])
+            multiplier = 1
+            if keywordDictConfidence != 0:
+                # Add to the multiplier of 1 the proportion of the confidence score with the max confidence score
+                multiplier += (keywordDictConfidence / maxKeyWordConfidence)
+
+            total += (spam_coefficient * multiplier)
+
+    keyword_coefficient = total / AVG_SPAM_COEFF / len(words)
+    # 0.0 - 0.20 seems typical of a normal email, >>0.20 seems to indicate phishing emails
+    return keyword_coefficient
 
 def check_grammar(text) -> int:
     tool = language_tool_python.LanguageTool('en-US', config={ 'cacheSize': 10000, 'pipelineCaching': True })
@@ -78,37 +120,36 @@ def intent_Weights(intentDict) -> int:
 
 
 def main():
-    # API key
+     # API key
     paralleldots.set_api_key("2BD2GHXk4JCZdQHphGuUYZEXXkhoxFRqjbqbRK5M4YA")
 
-    # Example text
-    text = ["Dear Student, Your access to your library account is expiring soon due to inactivity. To continue to have access to the library services, you must reactivate your account. For this purpose, click the web address below or copy and paste it into your web browser. A successful login will activate your account and you will be redirected to your library profile. https://auth.berkeley.edu/cas/login?service=https%3a%2f%(link is external). If you are not able to login, please contact at xxxxx@berkeley.edu(link sends e-mail) for immediate assistance."]
+    text = "Dear Student, Your access to your library account is expiring soon due to inactivity. To continue to have " \
+           "access to the library services, you must reactivate your account. For this purpose, click the web address " \
+           "below or copy and paste it into your web browser. A successful login will activate your account and you " \
+           "will be redirected to your library profile. (link " \
+           "is external) If you are not able to login, please contact at xxxxx@berkeley.edu(link sends e-mail) for " \
+           "immediate assistance. "
+
+    spam_words_dict = import_spam_keywords()
+
     t0 = time.time()
     errors = check_grammar(" ".join(text))
     t1 = time.time()
-    print(f"Checked grammar, took {t1-t0:.2f} seconds")
+    print(f"Checked grammar, took {t1 - t0:.2f} seconds")
 
     response = paralleldots.keywords(text)
     keywordDict = JSON_to_keywordDict(response)
     t2 = time.time()
-    print(f"Retrieved keywords, took {t2-t1:.2f} seconds")
+    print(f"Retrieved keywords, took {t2 - t1:.2f} seconds")
 
     response = paralleldots.intent(text)
     intentDict = JSON_to_intentDict(response)
     t3 = time.time()
-    print(f"Retrieved intents, took {t3-t2:.2f} seconds")
+    print(f"Retrieved intents, took {t3 - t2:.2f} seconds")
 
-    t4 = time.time()
-    weights = intent_Weights(intentDict)
-    print(f"Retrieved intent weights, took {t4-t3:.2f} seconds")
-
-    #response = paralleldots.emotion(text)
-    #emotionDict = JSON_to_emotionDict(response)
-    #t4 = time.time()
-    #print(f"Retrieved emotions, took {t4-t3:.2f} seconds")
-
-    writeToTXT(" ".join(text), errors, keywordDict, intentDict, weights)
-    print(f"Total time: {(time.time() - t0):.2f} seconds")
+    print(f"Keyword Coefficient: {determine_keyword_coefficient(text, spam_words_dict, keywordDict)}")
+    print(f"Grammatical Errors: {errors}")
+    print(f"Intent Weights: {intent_weights(intentDict)}")
 
 
 if __name__ == "__main__":
