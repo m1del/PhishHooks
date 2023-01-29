@@ -177,7 +177,7 @@ def read_message(service, message):
     print("="*50)
 
 # get emails that match the query you specify
-results = search_messages(service, "Jane Street")
+results = search_messages(service, "University of Florida")
 print(f"Found {len(results)} results.")
 counter = 0
 # for each email matched, read it (output plain/text to console & save HTML and attachments)
