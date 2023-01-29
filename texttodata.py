@@ -43,6 +43,37 @@ def check_grammar(text) -> int:
     tool = language_tool_python.LanguageTool('en-US', config={ 'cacheSize': 10000, 'pipelineCaching': True })
     return len(tool.check(text))
 
+def intent_Weights(intentDict) -> int:
+    # int of 0, 1, 2
+    # Check for highest 2 categories, if they are spam + marketing = 2, and on and on
+
+    weight = 0
+    highest = 0.0
+    secondHighest = -1.0
+
+    biggestIntent = "empty"
+    secondBiggestIntent = "empty"
+
+    for key, value in intentDict.items():
+        if type(value) is dict:
+            break
+
+        if value > highest:
+            secondBiggestIntent = biggestIntent
+            biggestIntent = key
+            secondHighest = highest
+            highest = value
+        elif value > secondHighest:
+            secondBiggestIntent = key
+            secondHighest = value
+
+    if biggestIntent == "spam" or biggestIntent == "marketing":
+        weight += 1
+    if secondBiggestIntent == "marketing" or secondBiggestIntent == "spam":
+        weight += 1
+
+    return weight
+
 def main():
     # API key
     paralleldots.set_api_key("2BD2GHXk4JCZdQHphGuUYZEXXkhoxFRqjbqbRK5M4YA")
