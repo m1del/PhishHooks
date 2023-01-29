@@ -5,17 +5,14 @@ import time
 import language_tool_python
 import pandas as pd
 
-
 SPAMWORDS_FILENAME = "spamwords.csv"
 AVG_SPAM_COEFF = 0.082
-
 
 def JSON_to_keywordDict(response) -> dict:
     keywordDict = {}
     for dicts in response["keywords"]:
         keywordDict[dicts["keyword"]] = dicts["confidence_score"]
     return keywordDict
-
 
 def JSON_to_intentDict(response) -> dict:
     intentDict = {"news": 0, "query": 0,
@@ -24,7 +21,6 @@ def JSON_to_intentDict(response) -> dict:
         intentDict[key] = value
 
     return intentDict
-
 
 def import_spam_keywords() -> dict:
     spam_words_dict = {}
@@ -36,7 +32,6 @@ def import_spam_keywords() -> dict:
                 spam_words_dict[row[0]] = row[1]
 
     return spam_words_dict
-
 
 def determine_keyword_coefficient(text, spam_words_dict, keywordDict) -> float:
     # Split string to a list of words
@@ -159,37 +154,6 @@ def RankDecision(decision_coefficient):
         st.write("Danger")
     else:
         st.write("Most likely a phishing attempt")
-
-
-
-def DisplayGraph(decision_coefficient):
-    if decision_coefficient > 100:
-        decision_coefficient = 100
-    if decision_coefficient < 0:
-        decision_coefficient = 0
-
-    chart_data = pd.DataFrame([decision_coefficient],
-    columns=["Phishing Likliehood"])
-    st.bar_chart(chart_data)
-
-def RankDecision(decision_coefficient):
-    if decision_coefficient > 100:
-        decision_coefficient = 100
-    if decision_coefficient < 0:
-        decision_coefficient = 0
-
-    if decision_coefficient >=0 and decision_coefficient < 20:
-        st.write("No Warnings")
-    elif decision_coefficient >= 20 and decision_coefficient < 40:
-        st.write("Safe")
-    elif decision_coefficient >= 40 and decision_coefficient < 60:
-        st.write("Caution")
-    elif decision_coefficient >=60 and decision_coefficient < 80:
-        st.write("Danger")
-    else:
-        st.write("Most likely a phishing attempt")
-
-
 
 def main():
     paralleldots.set_api_key("2BD2GHXk4JCZdQHphGuUYZEXXkhoxFRqjbqbRK5M4YA")
