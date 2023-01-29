@@ -4,8 +4,14 @@
     "desciption": "Protect yourself from phishing emails!",
     "permissions": ["identity", "*://*.google.com/*"],
     "action": {
-        "default_popup": "popup.html",
+        "default_popup": "popup/popup.html",
         "default_title": "PhishHooks"
+    },
+    "oauth2": {
+        "client_id": "507718843405-bckmip8lqptbpvh2go98mek3adjtjjaq.apps.googleusercontent.com",
+        "scopes": [
+            "https://www.googleapis.com/auth/gmail.modify"
+        ]
     },
     "manifest_version": 3
 }
