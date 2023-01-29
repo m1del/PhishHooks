@@ -162,8 +162,36 @@ def RankDecision(decision_coefficient):
 
 
 
+def DisplayGraph(decision_coefficient):
+    if decision_coefficient > 100:
+        decision_coefficient = 100
+    if decision_coefficient < 0:
+        decision_coefficient = 0
+
+    chart_data = pd.DataFrame([decision_coefficient],
+    columns=["Phishing Likliehood"])
+    st.bar_chart(chart_data)
+
+def RankDecision(decision_coefficient):
+    if decision_coefficient > 100:
+        decision_coefficient = 100
+    if decision_coefficient < 0:
+        decision_coefficient = 0
+
+    if decision_coefficient >=0 and decision_coefficient < 20:
+        st.write("No Warnings")
+    elif decision_coefficient >= 20 and decision_coefficient < 40:
+        st.write("Safe")
+    elif decision_coefficient >= 40 and decision_coefficient < 60:
+        st.write("Caution")
+    elif decision_coefficient >=60 and decision_coefficient < 80:
+        st.write("Danger")
+    else:
+        st.write("Most likely a phishing attempt")
+
+
+
 def main():
-    # API key
     paralleldots.set_api_key("2BD2GHXk4JCZdQHphGuUYZEXXkhoxFRqjbqbRK5M4YA")
 
     st.title("PhishHooks!")
@@ -192,6 +220,29 @@ def main():
         RankDecision(decicision)
         DisplayGraph(decicision)
     st.success('Done!')
+    print(f"Keyword Coefficient: {keywordCoefficient}")
+    print(f"Grammatical Errors: {errors}")
+    print(f"Intent Weights: {intentWeights}")
+
+    print(
+        f"Decision Coefficient: {generate_decision_coefficient(keywordCoefficient, errors, intentWeights)}")
+
+    return generate_decision_coefficient(keywordCoefficient, errors, intentWeights)
+
+
+def main():
+    # API key
+
+    st.title("PhishHooks!")
+    st.header("The bigger the phish, the bigger the hook!")
+    text = st.text_input('Email Body:')
+
+    if not text:
+        st.stop()
+
+    decisionCoefficient = analyze(text)
+
+    st.subheader(decisionCoefficient)
 
 
 if __name__ == "__main__":
