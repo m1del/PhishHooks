@@ -132,13 +132,8 @@ def generate_decision_coefficient(keyword_coefficient, errors, intent_weight):
     return decision_coefficient + change
 
 
-def main():
-    # API key
+def analyze(text):
     paralleldots.set_api_key("2BD2GHXk4JCZdQHphGuUYZEXXkhoxFRqjbqbRK5M4YA")
-
-    st.title("PhishHooks!")
-    st.write("The bigger the phish, the bigger the hook!")
-    text = st.text_input('Email Body:')
 
     spam_words_dict = import_spam_keywords()
 
@@ -165,8 +160,23 @@ def main():
     print(f"Grammatical Errors: {errors}")
     print(f"Intent Weights: {intentWeights}")
 
-    st.write(
+    print(
         f"Decision Coefficient: {generate_decision_coefficient(keywordCoefficient, errors, intentWeights)}")
+
+    return generate_decision_coefficient(keywordCoefficient, errors, intentWeights)
+
+
+def main():
+    # API key
+
+    st.title("PhishHooks!")
+    st.header("The bigger the phish, the bigger the hook!")
+    text = st.text_input('Email Body:')
+
+    if not text:
+        st.stop()
+
+    decisionCoefficient = analyze(text)
 
 
 if __name__ == "__main__":
