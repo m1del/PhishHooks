@@ -86,4 +86,12 @@ async function listLabels(auth) {
   });
 }
 
+async function getMessage(auth) {
+    const gmail = google.gmail({version: 'v1', auth});
+  const res = await gmail.users.messages.get({
+    userId: 'me',
+    id
+  });
+}
+
 authorize().then(listLabels).catch(console.error);
