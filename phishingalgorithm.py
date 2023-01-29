@@ -67,7 +67,7 @@ def determine_keyword_coefficient(text, spam_words_dict, keywordDict) -> float:
 
 
 def check_grammar(text) -> int:
-    tool = language_tool_python.LanguageTool('en-US', config={ 'cacheSize': 10000, 'pipelineCaching': True })
+    tool = language_tool_python.LanguageTool('en-US', config={'cacheSize': 10000, 'pipelineCaching': True})
     return len(tool.check(text))
 
 
@@ -103,17 +103,36 @@ def intent_weights(intentDict) -> int:
     return weight
 
 
+# Returns a decision coefficient centered around the value of 50, with >>50 indicating likely phishing
+def generate_decision_coefficient(keyword_coefficient, errors, intent_weight):
+    decision_coefficient = 50
+    change = 0
+    keyword_distribution_value = 0
+    if keyword_coefficient < 0.20:
+        keyword_distribution_value = abs(keyword_coefficient - 0.20) / 0.20
+        change -= (keyword_distribution_value * 100)
+    elif keyword_coefficient > 0.20:
+        keyword_distribution_value = (keyword_coefficient - 0.20) / 0.80
+        change += (keyword_distribution_value * 100)
+    if intent_weight == 0:
+        change -= (10 * (1 - keyword_distribution_value))
+    elif intent_weight == 2:
+        change += (20 * (1 - keyword_distribution_value))
+    if errors == 0:
+        change -= (10 * (1 - keyword_distribution_value))
+    elif errors > 1:
+        maxErrors = max(5, errors)
+        change += (5 * maxErrors * (1 - keyword_distribution_value))
+
+    return decision_coefficient + change
+
+
 def main():
     # API key
     paralleldots.set_api_key("2BD2GHXk4JCZdQHphGuUYZEXXkhoxFRqjbqbRK5M4YA")
 
-    text = "Dear Student, Your access to your library account is expiring soon due to inactivity. To continue to have " \
-           "access to the library services, you must reactivate your account. For this purpose, click the web address " \
-           "below or copy and paste it into your web browser. A successful login will activate your account and you " \
-           "will be redirected to your library profile. (link " \
-           "is external) If you are not able to login, please contact at xxxxx@berkeley.edu(link sends e-mail) for " \
-           "immediate assistance. "
-
+    text = "Dear Kevin, WiFi is out within this area of town—along with surrounding properties within the " \
+           "grid-system! We'll update you once we have more info! Sincerely, Campus Circle Management Team "
     spam_words_dict = import_spam_keywords()
 
     t0 = time.time()
@@ -131,9 +150,14 @@ def main():
     t3 = time.time()
     print(f"Retrieved intents, took {t3 - t2:.2f} seconds")
 
-    print(f"Keyword Coefficient: {determine_keyword_coefficient(text, spam_words_dict, keywordDict)}")
+    keywordCoefficient = determine_keyword_coefficient(text, spam_words_dict, keywordDict)
+    intentWeights = intent_weights(intentDict)
+
+    print(f"Keyword Coefficient: {keywordCoefficient}")
     print(f"Grammatical Errors: {errors}")
-    print(f"Intent Weights: {intent_weights(intentDict)}")
+    print(f"Intent Weights: {intentWeights}")
+
+    print(f"Decision Coefficient: {generate_decision_coefficient(keywordCoefficient, errors, intentWeights)}")
 
 
 if __name__ == "__main__":
